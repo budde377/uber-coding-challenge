@@ -1,1 +1,5 @@
 .idea
+
+dart/uber-challenge/web/packages
+dart/uber-challenge/.pub
+dart/uber-challenge/build

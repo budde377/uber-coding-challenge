@@ -35,8 +35,16 @@ class Handler:
         if name in self.handlers:
             return self.handlers[name]
         self.handlers[name] = handler = Handler(name)
-        self.add_function(name, lambda nme, inp: handler.handle(nme[1:], inp))
+        self.add_function(name, lambda nme, inp: Handler._recursive_handle(handler, nme, inp))
         return handler
+
+    @staticmethod
+    def _recursive_handle(handler, name: list, inp: dict):
+        """
+        :type handler: Handler
+        """
+        handler.name = name[0]
+        return handler.handle(name[1:], inp)
 
     def handle(self, name: list, handler_input: dict=None):
         """
@@ -67,10 +75,11 @@ class RESTHandler(Handler):
         :return:
         """
         handler = self.add_handler('1.0')
-        site_library_handler = handler.add_handler('StationLibrary')
+        site_library_handler = handler.add_handler('Stations')
         site_library_handler.add_function('findNearby',
                                           lambda name, inp: self.library.find_nearby(
                                               Position(int(inp['lat']), int(inp['long'])),
                                               int(inp['radius'])))
-        site_library_handler.add_function('stationFromName',
-                                          lambda name, inp: self.library.station_from_name(inp['name']))
+        site_library_handler \
+            .add_handler('departures') \
+            .add_function('*', lambda name, inp: self.library.station_from_id(int(name[0])).departures())

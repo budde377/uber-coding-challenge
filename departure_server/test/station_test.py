@@ -25,13 +25,25 @@ class TestStationLibrary(TestCase):
         self.lib.find_nearby(Position(1, 2))
         self.assertEqual([('find_nearby', [1, 2, 100, 100])], self.query_strategy.called)
 
-    def test_first_station_in_search_result(self):
-        station = self.lib.station_from_name('Some name')
-        self.assertEqual(Station(self.lib, 519002300, 'Velkær', Position(9546732, 54997056)), station)
+    def test_station_from_name_returns_list_sharing_name(self):
+        station = self.lib.station_from_name('Velkær')
+        self.assertEqual([Station(self.lib, 519002300, 'Velkær', Position(9546732, 54997056)),
+                          Station(self.lib, 519002301, 'Velkær', Position(9546733, 54997056))], station)
+
+    def test_station_from_name_skips_coords(self):
+        station = self.lib.station_from_name('Gyvelhøj 3370 Melby, Halsnæs Kommune')
+        self.assertEqual([], station)
+
+    def test_station_from_name_returns_empty_on_no_name_match(self):
+        station = self.lib.station_from_name('Something else')
+        self.assertEqual([], station)
 
     def test_strategy_station_called_with_right_parameters(self):
         self.lib.station_from_name("Bob")
         self.assertEqual([('search_stop', ["Bob"])], self.query_strategy.called)
+
+    def test_station_from_id_is_empty(self):
+        self.assertEqual(Station(self.lib, 123, '', Position(0, 0)), self.lib.station_from_id(123))
 
 
 class TestStation(TestCase):
@@ -44,10 +56,8 @@ class TestStation(TestCase):
     def test_station_departure_times(self):
         departures = self.station.departures()
         other = [
-            Departure(self.station, "Re 2221", "REG", datetime(2015, 7, 7, 10, 11), "Nykøbing F St.",
-                      Station(self.lib, 519002300, 'Velkær', Position(9546732, 54997056))),
-            Departure(self.station, "ØR 2037", "TOG", datetime(2015, 7, 7, 10, 12),
-                      final_stop=Station(self.lib, 519002300, 'Velkær', Position(9546732, 54997056))),
+            Departure(self.station, "Re 2221", "REG", datetime(2015, 7, 7, 10, 11), "Nykøbing F St."),
+            Departure(self.station, "ØR 2037", "TOG", datetime(2015, 7, 7, 10, 12)),
             Departure(self.station, "ØR 1036", "TOG", datetime(2015, 7, 7, 10, 12),
                       direction='Hässleholm C og Kalmar C')
         ]
@@ -55,6 +65,4 @@ class TestStation(TestCase):
 
     def test_strategy_called_right(self):
         self.station.departures()
-        self.assertEqual([('departure_time', [8600626, True, True, True]),
-                          ('search_stop', ['Nykøbing F St.']),
-                          ('search_stop', ['Helsingør St.'])], self.query_strategy.called)
+        self.assertEqual([('departure_time', [8600626, True, True, True])], self.query_strategy.called)

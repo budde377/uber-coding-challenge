@@ -2,7 +2,7 @@ import json
 from urllib.parse import urlparse, parse_qs
 
 from departure_server.query_strategy import QueryStrategy
-from departure_server.station import Station, Position
+from departure_server.station import Station, Position, Departure
 from departure_server.rest import RESTHandler, NoSuchFunctionException
 
 __author__ = 'budde'
@@ -23,6 +23,15 @@ class ModelEncoder(json.JSONEncoder):
 
         if isinstance(o, Position):
             return {'long': o.long, 'lat': o.lat}
+
+        if isinstance(o, Departure):
+            return {
+                'name': o.name,
+                'date': o.date.timestamp(),
+                'departure_type': o.departure_type,
+                'direction': o.direction
+            }
+
         return super().default(o)
 
 

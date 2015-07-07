@@ -39,12 +39,10 @@ class Station:
 
         (hour, minute) = element.attrib['time'].split(':')
         (d, m, y) = element.attrib['date'].split('.')
-        final_stop = self.library.station_from_name(
-            element.attrib['finalStop']) if 'finalStop' in element.attrib else ''
         direction = element.attrib['direction'] if 'direction' in element.attrib else ''
 
         return Departure(self, element.attrib['name'], element.attrib['type'],
-                         datetime(int(y) + 2000, int(m), int(d), int(hour), int(minute)), direction, final_stop)
+                         datetime(int(y) + 2000, int(m), int(d), int(hour), int(minute)), direction)
 
     def __eq__(self, other):
         return isinstance(other, Station) and self.id == other.id and self.name == other.name and self.pos == other.pos
@@ -58,19 +56,19 @@ class StationLibrary:
         self.query_strategy = query_strategy
 
     def find_nearby(self, pos: Position, radius: int=100) -> list:
-        element = self.query_strategy.find_nearby(pos.long, pos.lat, radius, 100)
+        element = self.query_strategy.find_nearby(pos.lat, pos.long, radius, 50)
         stations = []
         for child in element:
             stations.append(self.__station_from_xml(child))
         return stations
 
-    def station_from_name(self, name: str) -> Station:
+    def station_from_name(self, name: str) -> list:
         element = self.query_strategy.search_stop(name)
-        for child in element:
-            if child.tag == "StopLocation":
-                return self.__station_from_xml(child)
+        return list(map(self.__station_from_xml,
+                        filter(lambda e: e.tag == "StopLocation" and e.attrib['name'] == name, list(element))))
 
-        return None
+    def station_from_id(self, station_id: int) -> Station:
+        return Station(self, station_id, "", Position(0, 0))
 
     def __station_from_xml(self, element):
         return Station(self, int(element.attrib['id']), element.attrib['name'],
@@ -78,17 +76,14 @@ class StationLibrary:
 
 
 class Departure:
-    def __init__(self, station: Station, name: str, departure_type: str, date: datetime, direction: str="",
-                 final_stop: Station=""):
+    def __init__(self, station: Station, name: str, departure_type: str, date: datetime, direction: str=""):
         self.station = station
         self.name = name
         self.departure_type = departure_type
         self.date = date
         self.direction = direction
-        self.final_stop = final_stop
 
     def __eq__(self, other):
         return isinstance(other, Departure) and other.station == self.station and other.name == self.name \
                and other.departure_type == self.departure_type \
                and other.date == self.date and other.direction == self.direction \
-               and other.final_stop == self.final_stop

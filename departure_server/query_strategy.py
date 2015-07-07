@@ -13,7 +13,8 @@ _search = """<?xml version="1.0" encoding="UTF-8"?>
 <LocationList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://xmlopen.rejseplanen.dk/xml/rest/hafasRestLocation.xsd">
 <CoordLocation name="Gyvelhøj 3370 Melby, Halsnæs Kommune" x="11946043" y="55992953" type="ADR" />
 <StopLocation name="Velkær" x="9546732" y="54997056" id="519002300" />
-<StopLocation name="Velling" x="9582617" y="55624341" id="603330500" />
+<StopLocation name="Velkær" x="9546733" y="54997056" id="519002301" />
+<StopLocation name="Helsingør St." x="9582617" y="55624341" id="603330500" />
 <CoordLocation name="Skelbyvej Bavelse Mlgd, 4171 Glumsø, Næstved Kommu" x="11665022" y="55328686" type="ADR" />
 </LocationList>
 """

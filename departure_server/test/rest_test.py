@@ -49,6 +49,11 @@ class TestHandler(unittest.TestCase):
         self.assertEqual(self.return_value, self.handler.handle(['a', 'f']))
         self.assertEqual(self.return_value, self.handler.handle(['a', 'g']))
 
+    def test_handler_updates_name_on_wildcard(self):
+        handler = self.handler.add_handler("*")
+        handler.add_function('f', lambda name, inp: self.assertEqual('T', handler.name))
+        self.handler.handle(['T', 'f'])
+
     def caller(self, name, inp):
         self.call_stack.append((name, inp))
         return self.return_value
@@ -63,10 +68,10 @@ class TestRESTHandler(unittest.TestCase):
 
     def test_station_library_find_nearby(self):
         self.assertEqual(self.lib.find_nearby(Position(0, 0), 1000),
-                         self.handler.handle(['1.0', 'StationLibrary', 'findNearby'],
+                         self.handler.handle(['1.0', 'Stations', 'findNearby'],
                                              {'long': '0', 'lat': 0, 'radius': 1000}))
 
-    def test_station_library_from_name(self):
-        self.assertEqual(self.lib.station_from_name("bob"),
-                         self.handler.handle(['1.0', 'StationLibrary', 'stationFromName'],
-                                             {'name': 'bob'}))
+    def test_get_station_from_name(self):
+        s1 = self.lib.station_from_id(603330500).departures()
+        s2 = self.handler.handle(['1.0', 'Stations', 'departures', '603330500'])
+        self.assertEqual(s1, s2)
