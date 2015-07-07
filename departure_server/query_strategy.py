@@ -1,4 +1,4 @@
-import urllib.request
+from urllib import request, parse
 from xml.etree import ElementTree
 
 __author__ = 'budde'
@@ -78,12 +78,13 @@ class RejseplanenQueryStrategy(QueryStrategy):
             "stopsNearby?coordX=%d&coordY=%d&maxRadius=%d&maxNumber=%d" % (x, y, max_radius, max_number))
 
     def search_stop(self, name: str) -> ElementTree.Element:
-        return self._read_url("location?input=%s" % name)
+        return self._read_url("location?input=%s" % parse.quote(name))
 
     def departure_time(self, stop_id: int, use_bus=True, use_tog=True, use_metro=True) -> ElementTree.Element:
         return self._read_url(
             "departureBoard?useBus=%d&useTog=%d&useMetro=%d&id=%d" % (use_bus, use_tog, use_metro, stop_id))
 
     def _read_url(self, address: str) -> ElementTree.Element:
-        data = urllib.request.urlopen("%s/%s" % (self.base_url, address)).read()
+        url = "%s/%s" % (self.base_url, address)
+        data = request.urlopen(url).read()
         return ElementTree.fromstring(data)
