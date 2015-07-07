@@ -1,17 +1,32 @@
 import json
 from urllib.parse import urlparse, parse_qs
+from departure_server.model.query_strategy import QueryStrategy
+from departure_server.model.station import Station, Position
 from departure_server.server.rest import RESTHandler, NoSuchFunctionException
 
 __author__ = 'budde'
 
 import http.server
 
-_rest_handler = RESTHandler()
+
+def setup_handler(strategy: QueryStrategy):
+    handler = CustomRequestHandler
+    handler.__REST_HANDLER__ = RESTHandler(strategy)
+    return handler
+
+
+class ModelEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, Station):
+            return {'id': o.id, 'name': o.name, 'pos': self.default(o.pos)}
+
+        if isinstance(o, Position):
+            return {'long': o.long, 'lat': o.lat}
+        return super().default(o)
 
 
 class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
-    def __init__(self, request, client_address, server):
-        super().__init__(request, client_address, server)
+    __REST_HANDLER__ = None
 
     def list_directory(self, path):
         """
@@ -43,9 +58,11 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         parsed_path = urlparse(self.path)
         path = parsed_path.path[1:].split("/")[1:]
         query = parse_qs(parsed_path.query)
+        for key in query:
+            query[key] = query[key][0]
         try:
-            self.send_result(_rest_handler.handle(path, query))
-            
+            self.send_result(self.__REST_HANDLER__.handle(path, query))
+
         except NoSuchFunctionException:
             self.send_error(400, "Bad request")
 
@@ -55,9 +72,7 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         :param result: string
         :return: void
         """
-        formatted_result = json.dumps(result)
+        formatted_result = json.dumps(result, cls=ModelEncoder)
         self.send_response(200)
         self.end_headers()
-        self.wfile.write(bytes(formatted_result,'UTF-8'))
-
-
+        self.wfile.write(bytes(formatted_result, 'UTF-8'))

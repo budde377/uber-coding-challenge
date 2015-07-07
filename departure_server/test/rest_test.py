@@ -1,4 +1,7 @@
-from departure_server.server.rest import Handler, NoSuchFunctionException
+from xml.etree import ElementTree
+from departure_server.model.query_strategy import StubQueryStrategy
+from departure_server.model.station import StationLibrary, Position
+from departure_server.server.rest import Handler, NoSuchFunctionException, RESTHandler
 
 __author__ = 'budde'
 import unittest
@@ -34,7 +37,7 @@ class TestHandler(unittest.TestCase):
 
     def test_exception_on_missing_function(self):
         with self.assertRaises(NoSuchFunctionException):
-            self.handler.handle("a")
+            self.handler.handle(["a"])
 
     def test_exception_on_short_name(self):
         self.handler.add_handler('a').add_function('b', self.caller)
@@ -51,3 +54,20 @@ class TestHandler(unittest.TestCase):
         self.call_stack.append((name, inp))
         return self.return_value
 
+
+class TestRESTHandler(unittest.TestCase):
+    def setUp(self):
+        self.query_strategy = StubQueryStrategy()
+        self.lib = StationLibrary(self.query_strategy)
+        self.station = self.lib.find_nearby(Position(0, 0))[0]
+        self.handler = RESTHandler(self.query_strategy)
+
+    def test_station_library_find_nearby(self):
+        self.assertEqual(self.lib.find_nearby(Position(0, 0), 1000),
+                         self.handler.handle(['1.0', 'StationLibrary', 'findNearby'],
+                                             {'long': '0', 'lat': 0, 'radius': 1000}))
+
+    def test_station_library_from_name(self):
+        self.assertEqual(self.lib.station_from_name("bob"),
+                         self.handler.handle(['1.0', 'StationLibrary', 'stationFromName'],
+                                             {'name': 'bob'}))

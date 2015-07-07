@@ -1,3 +1,6 @@
+from departure_server.model.query_strategy import RejseplanenQueryStrategy, QueryStrategy
+from departure_server.model.station import StationLibrary, Position
+
 __author__ = 'budde'
 
 
@@ -12,7 +15,7 @@ class Handler:
         self.functions = {}
         self.handlers = {}
 
-    def add_function(self, name, function):
+    def add_function(self, name: str, function):
         """
         Adds a function to a corresponding function name
         :param name: The function name
@@ -21,7 +24,7 @@ class Handler:
         """
         self.functions[name] = function
 
-    def add_handler(self, name):
+    def add_handler(self, name: str):
         """
         If a handler hasn't been added, a new handler is created. A function is also
         added in order to mimic a recursive call to handle.
@@ -35,7 +38,7 @@ class Handler:
         self.add_function(name, lambda nme, inp: handler.handle(nme[1:], inp))
         return handler
 
-    def handle(self, name, handler_input=None):
+    def handle(self, name: list, handler_input: dict=None):
         """
         Resolves the right name and calls the appropriate function.
         If no function is found an NoSuchFunctionException will be thrown
@@ -53,8 +56,9 @@ class Handler:
 
 
 class RESTHandler(Handler):
-    def __init__(self):
+    def __init__(self, query_strategy: QueryStrategy):
         super().__init__(None)
+        self.library = StationLibrary(query_strategy)
         self.setup_v1_0()
 
     def setup_v1_0(self):
@@ -63,5 +67,10 @@ class RESTHandler(Handler):
         :return:
         """
         handler = self.add_handler('1.0')
-        handler.add_function('test', lambda p1, p2: {})
-        print("123123")
+        site_library_handler = handler.add_handler('StationLibrary')
+        site_library_handler.add_function('findNearby',
+                                          lambda name, inp: self.library.find_nearby(
+                                              Position(int(inp['lat']), int(inp['long'])),
+                                              int(inp['radius'])))
+        site_library_handler.add_function('stationFromName',
+                                          lambda name, inp: self.library.station_from_name(inp['name']))
