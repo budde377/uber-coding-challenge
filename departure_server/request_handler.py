@@ -1,8 +1,9 @@
 import json
 from urllib.parse import urlparse, parse_qs
-from departure_server.model.query_strategy import QueryStrategy
-from departure_server.model.station import Station, Position
-from departure_server.server.rest import RESTHandler, NoSuchFunctionException
+
+from departure_server.query_strategy import QueryStrategy
+from departure_server.station import Station, Position
+from departure_server.rest import RESTHandler, NoSuchFunctionException
 
 __author__ = 'budde'
 

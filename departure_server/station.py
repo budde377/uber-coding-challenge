@@ -1,6 +1,7 @@
 from datetime import datetime
 from xml.etree import ElementTree
-from departure_server.model.query_strategy import QueryStrategy
+
+from departure_server.query_strategy import QueryStrategy
 
 __author__ = 'budde'
 
@@ -38,7 +39,8 @@ class Station:
 
         (hour, minute) = element.attrib['time'].split(':')
         (d, m, y) = element.attrib['date'].split('.')
-        final_stop = self.library.station_from_name(element.attrib['finalStop']) if 'finalStop' in element.attrib else ''
+        final_stop = self.library.station_from_name(
+            element.attrib['finalStop']) if 'finalStop' in element.attrib else ''
         direction = element.attrib['direction'] if 'direction' in element.attrib else ''
 
         return Departure(self, element.attrib['name'], element.attrib['type'],
@@ -49,6 +51,7 @@ class Station:
 
     def __ne__(self, other):
         return not self == other
+
 
 class StationLibrary:
     def __init__(self, query_strategy: QueryStrategy):

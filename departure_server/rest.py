@@ -1,5 +1,5 @@
-from departure_server.model.query_strategy import RejseplanenQueryStrategy, QueryStrategy
-from departure_server.model.station import StationLibrary, Position
+from departure_server.query_strategy import QueryStrategy
+from departure_server.station import StationLibrary, Position
 
 __author__ = 'budde'
 

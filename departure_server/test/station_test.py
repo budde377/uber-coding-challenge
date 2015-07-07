@@ -1,7 +1,8 @@
 from datetime import datetime
 from unittest import TestCase
-from departure_server.model.query_strategy import StubQueryStrategy
-from departure_server.model.station import StationLibrary, Position, Station, Departure
+
+from departure_server.query_strategy import StubQueryStrategy
+from departure_server.station import StationLibrary, Position, Station, Departure
 
 __author__ = 'budde'
 

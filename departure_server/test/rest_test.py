@@ -1,7 +1,6 @@
-from xml.etree import ElementTree
-from departure_server.model.query_strategy import StubQueryStrategy
-from departure_server.model.station import StationLibrary, Position
-from departure_server.server.rest import Handler, NoSuchFunctionException, RESTHandler
+from departure_server.query_strategy import StubQueryStrategy
+from departure_server.station import StationLibrary, Position
+from departure_server.rest import Handler, NoSuchFunctionException, RESTHandler
 
 __author__ = 'budde'
 import unittest
