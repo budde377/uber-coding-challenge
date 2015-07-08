@@ -14,7 +14,7 @@ import http.server
 def setup_handler(strategy: QueryStrategy):
     handler = CustomRequestHandler
     handler.__REST_HANDLER__ = RESTHandler(strategy)
-    return ThreadedCustomRequestHandler
+    return handler
 
 
 class ModelEncoder(json.JSONEncoder):
