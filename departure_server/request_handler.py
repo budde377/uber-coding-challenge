@@ -1,4 +1,5 @@
 import json
+from socketserver import ThreadingMixIn
 from urllib.parse import urlparse, parse_qs
 
 from departure_server.query_strategy import QueryStrategy
@@ -13,7 +14,7 @@ import http.server
 def setup_handler(strategy: QueryStrategy):
     handler = CustomRequestHandler
     handler.__REST_HANDLER__ = RESTHandler(strategy)
-    return handler
+    return ThreadedCustomRequestHandler
 
 
 class ModelEncoder(json.JSONEncoder):
@@ -92,3 +93,7 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         self.wfile.write(bytes(formatted_result, 'UTF-8'))
+
+
+class ThreadedCustomRequestHandler(ThreadingMixIn, CustomRequestHandler):
+    pass
