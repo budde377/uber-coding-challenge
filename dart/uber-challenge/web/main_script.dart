@@ -264,10 +264,11 @@ String formatDuration(Duration duration) {
     return "Soon";
   }
   var hour_string = "";
-  if (duration.inMinutes > 60) {
+  if (duration.inMinutes >= 60) {
     hour_string = "${duration.inHours} hour${duration.inHours != 1 ? "s" : ""} ";
   }
-  return "$hour_string${duration.inMinutes % 60} minute${duration.inMinutes != 1 ? "s" : ""}";
+  minutes = minutes%60;
+  return "$hour_string$minutes minute${minutes != 1 ? "s" : ""}";
 }
 
 String formatName(String name) {
