@@ -20,15 +20,122 @@ font {
 }
 
 #Map {
-    width: 80%;
     height: 100%;
     float: left;
 }
 
 #Timetable {
-    width: 20%;
     height: 100%;
     float: left;
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+#Timetable ul {
+    list-style-type: none;
+    float: left;
+}
+
+#Timetable li {
+    float: left;
+    width: 100%;
+}
+
+#Timetable ul.stations > li {
+    position: relative;
+    margin: 1px 0;
+}
+
+#Timetable ul.stations > li > span.update {
+    position: absolute;
+    display: none;
+    right: 0;
+    height: 30px;
+    width: 30px;
+    top: 0;
+    cursor: pointer;
+    background: #114C76 url("/img/iconmonstr-refresh-3-icon.svg") scroll no-repeat center center;
+    background-size: contain;
+    -webkit-transition: opacity 0.1s;
+    -moz-transition: opacity 0.1s;
+    -ms-transition: opacity 0.1s;
+    -o-transition: opacity 0.1s;
+    transition: opacity 0.1s;
+    opacity: 0;
+}
+
+#Timetable ul.stations > li.active.updateable > span.update {
+    display: block;
+    opacity: 1;
+}
+
+#Timetable ul.stations > li > span.title {
+    cursor: pointer;
+    display: block;
+    overflow: hidden;
+    line-height: 30px;
+    padding: 0 10px;
+    height: 30px;
+    background: #6BC3CF;
+    font-weight: bold;
+    font-size: 10px;
+    color: #FFF;
+    -webkit-transition: background-color 0.1s;
+    -moz-transition: background-color 0.1s;
+    -ms-transition: background-color 0.1s;
+    -o-transition: background-color 0.1s;
+    transition: background-color 0.1s;
+}
+
+#Timetable ul.stations > li > ul {
+    display: none;
+}
+
+#Timetable ul.stations > li.active > ul {
+    display: block;
+}
+
+#Timetable ul.stations > li.active > span.title {
+    background: #114C76;
+}
+
+#Timetable ul.stations > li:not(.active) > span.title:hover {
+    background-color: #30797e;
+}
+
+#Timetable .departure_list span {
+    display: block;
+}
+
+#Timetable .departure_list.loading {
+    min-height: 100px;
+    background: rgb(216, 216, 216) url(/img/loader.svg) scroll no-repeat center center;
+    background-size: 30%;
+    width: 100%;
+}
+
+#Timetable .departure_list span.name {
+    float: left;
+    width: 40px;
+    height: 40px;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 40px;
+    text-align: center;
+
+}
+
+#Timetable .departure_list span:not(.name) {
+    line-height: 20px;
+    height: 20px;
+    overflow: hidden;
+}
+
+#Timetable .departure_list span.direction {
+}
+
+#Timetable .departure_list span.ttd {
+    font-size: 10px;
 }
 
 #MapCanvas:not(.blur) {
@@ -48,4 +155,26 @@ font {
     content: "Waiting for location";
     background: transparent url(/img/iconmonstr-compass-6-icon.svg) scroll no-repeat center center;
     background-size: 150px 150px;
+}
+
+@media screen and (max-width: 650px) {
+    #Map {
+        display: none;
+    }
+
+    #Timetable {
+        width: 100%;
+    }
+
+}
+
+@media screen and (min-width: 650px) {
+    #Map {
+        width: 80%;
+    }
+
+    #Timetable {
+        width: 20%;
+    }
+
 }
