@@ -390,6 +390,9 @@ class MapsStyler extends Styler {
   Stream<List<Station>> get onStationViewChange => _station_view_controller.stream;
 
   void _changeMarker(Station station) {
+    if (station == null) {
+      return;
+    }
     var marker = _station_marker_map[station]
       ..icon = new DarkCustomIcon();
     StreamSubscription subscription;
