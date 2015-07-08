@@ -52,7 +52,7 @@ font {
     right: 0;
     height: 30px;
     width: 30px;
-    top: 0;
+    top: 10px;
     cursor: pointer;
     background: #114C76 url("/img/iconmonstr-refresh-3-icon.svg") scroll no-repeat center center;
     background-size: contain;
@@ -73,9 +73,9 @@ font {
     cursor: pointer;
     display: block;
     overflow: hidden;
-    line-height: 30px;
+    line-height: 40px;
     padding: 0 10px;
-    height: 30px;
+    height: 40px;
     background: #6BC3CF;
     font-weight: bold;
     font-size: 10px;
