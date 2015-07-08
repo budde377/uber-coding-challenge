@@ -281,7 +281,7 @@ class MapsStyler extends Styler {
 
   Maps.GMap _map;
   Maps.Circle _location_circle;
-  int _min_accuracy = 500;
+  int _min_accuracy = 700;
   StreamController<int> _min_accuracy_controller = new StreamController.broadcast();
   StreamController<Station> _on_active_change_controller = new StreamController.broadcast();
   StreamController<List<Station>> _station_view_controller = new StreamController.broadcast();
@@ -307,7 +307,7 @@ class MapsStyler extends Styler {
 
   void setupMap() {
     querySelector('body').classes.add('blur');
-    window.navigator.geolocation.getCurrentPosition(enableHighAccuracy:true).then((Geoposition position) {
+    window.navigator.geolocation.getCurrentPosition(enableHighAccuracy:false).then((Geoposition position) {
       setupMapAt(new Maps.LatLng(position.coords.latitude, position.coords.longitude), position.coords.accuracy);
 
     }, onError:(error) {

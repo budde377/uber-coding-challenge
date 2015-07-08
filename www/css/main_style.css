@@ -103,6 +103,10 @@ font {
     background-color: #30797e;
 }
 
+#Timetable .departure_list > li {
+    margin: 1px 0;
+}
+
 #Timetable .departure_list span {
     display: block;
 }
@@ -129,6 +133,7 @@ font {
     line-height: 20px;
     height: 20px;
     overflow: hidden;
+    padding-left: 3px;
 }
 
 #Timetable .departure_list span.direction {
