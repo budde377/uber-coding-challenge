@@ -58,6 +58,12 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
 
         super().do_GET()
 
+    def guess_type(self, path):
+        if path[-5:] == ".dart":
+            return "application/dart"
+
+        return super().guess_type(path)
+
     def send_api(self):
         """
         Will handle the query as a API call.

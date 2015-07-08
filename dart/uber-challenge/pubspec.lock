@@ -33,6 +33,10 @@ packages:
     description: glob
     source: hosted
     version: "1.0.4"
+  google_maps:
+    description: google_maps
+    source: hosted
+    version: "2.0.7"
   http_multi_server:
     description: http_multi_server
     source: hosted
@@ -41,6 +45,10 @@ packages:
     description: http_parser
     source: hosted
     version: "0.0.2+7"
+  js_wrapping:
+    description: js_wrapping
+    source: hosted
+    version: "0.1.2"
   matcher:
     description: matcher
     source: hosted
@@ -97,10 +105,6 @@ packages:
     description: test
     source: hosted
     version: "0.12.3+5"
-  unittest:
-    description: unittest
-    source: hosted
-    version: "0.12.3"
   watcher:
     description: watcher
     source: hosted

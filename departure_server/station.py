@@ -57,10 +57,7 @@ class StationLibrary:
 
     def find_nearby(self, pos: Position, radius: int=100) -> list:
         element = self.query_strategy.find_nearby(pos.lat, pos.long, radius, 50)
-        stations = []
-        for child in element:
-            stations.append(self.__station_from_xml(child))
-        return stations
+        return list(map(self.__station_from_xml, list(element)))
 
     def station_from_name(self, name: str) -> list:
         element = self.query_strategy.search_stop(name)
@@ -72,7 +69,7 @@ class StationLibrary:
 
     def __station_from_xml(self, element):
         return Station(self, int(element.attrib['id']), element.attrib['name'],
-                       Position(int(element.attrib['x']), int(element.attrib['y'])))
+                       Position(int(element.attrib['y']), int(element.attrib['x'])))
 
 
 class Departure:

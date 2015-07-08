@@ -14,21 +14,21 @@ class TestStationLibrary(TestCase):
 
     def test_find_nearby(self):
         stations = self.lib.find_nearby(Position(0, 0))
-        other = [Station(self.lib, 8600626, "København H", Position(12565796, 55673063)),
-                 Station(self.lib, 10844, "Hovedbanegården, Tivoli", Position(12566191, 55672838)),
+        other = [Station(self.lib, 8600626, "København H", Position(55673063, 12565796)),
+                 Station(self.lib, 10844, "Hovedbanegården, Tivoli", Position(55672838, 12566191)),
                  Station(self.lib, 100240000, "København, Bernstorffsgade (fjernbus)",
-                         Position(12565112, 55673899))]
+                         Position(55673899, 12565112))]
 
         self.assertEqual(other, stations)
 
     def test_strategy_find_called_with_right_parameters(self):
         self.lib.find_nearby(Position(1, 2))
-        self.assertEqual([('find_nearby', [1, 2, 100, 100])], self.query_strategy.called)
+        self.assertEqual([('find_nearby', [1, 2, 100, 50])], self.query_strategy.called)
 
     def test_station_from_name_returns_list_sharing_name(self):
         station = self.lib.station_from_name('Velkær')
-        self.assertEqual([Station(self.lib, 519002300, 'Velkær', Position(9546732, 54997056)),
-                          Station(self.lib, 519002301, 'Velkær', Position(9546733, 54997056))], station)
+        self.assertEqual([Station(self.lib, 519002300, 'Velkær', Position(54997056, 9546732)),
+                          Station(self.lib, 519002301, 'Velkær', Position(54997056, 9546733))], station)
 
     def test_station_from_name_skips_coords(self):
         station = self.lib.station_from_name('Gyvelhøj 3370 Melby, Halsnæs Kommune')
