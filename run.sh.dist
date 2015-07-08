@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+cd www
+export PYTHONPATH=../:$PYTHONPATH
+python3 -m departure_server

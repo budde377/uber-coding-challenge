@@ -4,3 +4,4 @@ dart/uber-challenge/web/packages
 dart/uber-challenge/.pub
 dart/uber-challenge/build
 dart/uber-challenge/web/main_script.dart.js*
+run.sh
