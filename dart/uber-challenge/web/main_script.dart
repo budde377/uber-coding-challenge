@@ -306,7 +306,7 @@ class MapsStyler extends Styler {
   get min_accuracy => _min_accuracy;
 
   void setupMap() {
-    element.classes.add('blur');
+    querySelector('body').classes.add('blur');
     window.navigator.geolocation.getCurrentPosition(enableHighAccuracy:true).then((Geoposition position) {
       setupMapAt(new Maps.LatLng(position.coords.latitude, position.coords.longitude), position.coords.accuracy);
 
@@ -317,7 +317,7 @@ class MapsStyler extends Styler {
 
   void setupMapAt(Maps.LatLng position, [num accuracy = 0]) {
     accuracy = max(accuracy, _min_accuracy);
-    element.classes.remove('blur');
+    querySelector('body').classes.remove('blur');
     //Disabling existing transit information
     var mapStyler = new Maps.MapTypeStyler()
       ..visibility = Maps.MapTypeStylerVisibility.OFF;
