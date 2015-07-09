@@ -42,7 +42,7 @@ class Departure {
   final StreamController<Departure> _on_departure_controller = new StreamController.broadcast();
 
   factory Departure(Station station, String type, String direction, String name, DateTime time) =>
-  _cache.putIfAbsent(station.hashCode ^ type.hashCode ^ direction.hashCode ^ name.hashCode ^ time.hashCode,
+  _cache.putIfAbsent(station.hashCode ^ type.hashCode ^ direction.hashCode ^ name.hashCode ^ time.hashCode ^ station.id,
       () => new Departure._internal(station, type, direction, name, time));
 
   Departure._internal(this.station, this.type, this.direction, this.name, this.time){
