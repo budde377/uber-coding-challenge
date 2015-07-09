@@ -31,14 +31,19 @@ class Station:
 
     def departures(self) -> list:
         element = self.query_strategy.departure_time(self.id)
-        return list(filter(lambda v: v is not None, map(self.__departure_from_xml, list(element))))
+        return \
+            list(
+                sorted(
+                    filter(lambda v: v is not None,
+                           map(self.__departure_from_xml, list(element))),
+                    key=lambda d: d.date))
 
     def __departure_from_xml(self, element: ElementTree.Element):
         if 'cancelled' in element.attrib and element.attrib['cancelled'] != 'false':
             return None
 
-        (hour, minute) = element.attrib['time'].split(':')
-        (d, m, y) = element.attrib['date'].split('.')
+        (hour, minute) = element.attrib['rtTime' if 'rtTime' in element.attrib else 'time'].split(':')
+        (d, m, y) = element.attrib['rtDate' if 'rtDate' in element.attrib else 'date'].split('.')
         direction = element.attrib['direction'] if 'direction' in element.attrib else ''
 
         return Departure(self, element.attrib['name'], element.attrib['type'],
@@ -83,4 +88,4 @@ class Departure:
     def __eq__(self, other):
         return isinstance(other, Departure) and other.station == self.station and other.name == self.name \
                and other.departure_type == self.departure_type \
-               and other.date == self.date and other.direction == self.direction \
+               and other.date == self.date and other.direction == self.direction

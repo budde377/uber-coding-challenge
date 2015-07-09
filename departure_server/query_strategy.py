@@ -22,7 +22,7 @@ _search = """<?xml version="1.0" encoding="UTF-8"?>
 _departure = """<?xml version="1.0" encoding="UTF-8"?>
 <DepartureBoard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:noNamespaceSchemaLocation="http://xmlopen.rejseplanen.dk/xml/rest/hafasRestDepartureBoard.xsd">
-<Departure name="Re 2221" type="REG" stop="København H" time="10:11" date="07.07.15" messages="0" track="7" rtTrack="7" finalStop="Nykøbing F St." direction="Nykøbing F St.">
+<Departure name="Re 2221" type="REG" stop="København H" time="10:11" rtTime="10:20" date="07.07.15" rtDate="08.07.15" messages="0" track="7" rtTrack="7" finalStop="Nykøbing F St." direction="Nykøbing F St.">
 <JourneyDetailRef ref="http://xmlopen.rejseplanen.dk/bin/rest.exe/journeyDetail?ref=578919%2F203001%2F147318%2F119314%2F86%3Fdate%3D07.07.15" />
 </Departure>
 <Departure name="ØR 2037" type="TOG" stop="København H" time="10:12" date="07.07.15" messages="0" track="1" rtTrack="1" finalStop="Helsingør St." >

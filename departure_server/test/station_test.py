@@ -56,10 +56,11 @@ class TestStation(TestCase):
     def test_station_departure_times(self):
         departures = self.station.departures()
         other = [
-            Departure(self.station, "Re 2221", "REG", datetime(2015, 7, 7, 10, 11), "Nykøbing F St."),
+
             Departure(self.station, "ØR 2037", "TOG", datetime(2015, 7, 7, 10, 12)),
             Departure(self.station, "ØR 1036", "TOG", datetime(2015, 7, 7, 10, 12),
-                      direction='Hässleholm C og Kalmar C')
+                      direction='Hässleholm C og Kalmar C'),
+            Departure(self.station, "Re 2221", "REG", datetime(2015, 7, 8, 10, 20), "Nykøbing F St.")
         ]
         self.assertEqual(other, departures)
 
