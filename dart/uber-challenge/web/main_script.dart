@@ -397,6 +397,7 @@ class MapsStyler extends Styler {
 
   _draw_stations(List<Station> station_list, Maps.LatLng pos, num radius) {
     _draw_location(pos, radius);
+    _station_marker_map.forEach((station, Maps.Marker marker) => marker.map = null);
     _station_view_controller.add(station_list);
     station_list.forEach(_draw_station);
 
@@ -404,6 +405,7 @@ class MapsStyler extends Styler {
 
   void _draw_station(Station station) {
     if (_station_marker_map.containsKey(station)) {
+      _station_marker_map[station].map = _map;
       return;
     }
 
