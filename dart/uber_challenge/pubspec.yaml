@@ -1,4 +1,4 @@
-name: uber-challenge
+name: uber_challenge
 author: Christian Budde Christensen <christi@n-bud.de>
 version: 0.9.0
 dev_dependencies:
