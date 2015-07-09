@@ -277,7 +277,7 @@ String formatName(String name) {
   if ((match = new RegExp(r"^[a-zA-Z ]*[Bb]us ([0-9]+[A-Z]?)$").firstMatch(name)) != null) {
     return match.group(1);
   }
-  if ((match = new RegExp(r"^(Re|IC|ICL|IB|.R) [0-9]+$").firstMatch(name)) != null) {
+  if ((match = new RegExp(r"^([^\s]{2,}) [0-9]+$").firstMatch(name)) != null) {
     return match.group(1);
   }
 
