@@ -121,7 +121,7 @@ abstract class Styler {
 
 class TimeTableStyler extends Styler {
 
-  final MapsStyler maps_styler;
+  final MapsStyler mapsStyler;
   final UListElement _station_list;
   final Map<Station, LIElement> _station_li_map = {};
   final Map<Station, UListElement> _station_departure_map = {};
@@ -129,26 +129,26 @@ class TimeTableStyler extends Styler {
   Function _auto_update_callback;
   Station _active_station;
 
-  TimeTableStyler(Element element, this.maps_styler) : super(element), _station_list = element.querySelector('ul.stations');
+  TimeTableStyler(Element element, this.mapsStyler) : super(element), _station_list = element.querySelector('ul.stations');
 
 
   setup() {
-    maps_styler.onStationViewChange.listen(_setupStations);
+    mapsStyler.onStationViewChange.listen(_setup_stations);
   }
 
-  void _setupStations(List<Station> station_list) {
+  void _setup_stations(List<Station> station_list) {
     _station_list.children.clear();
-    station_list.forEach(_setupStation);
-    maps_styler.onActiveChange.listen((Station station) {
+    station_list.forEach(_setup_station);
+    mapsStyler.onActiveChange.listen((Station station) {
       if (station == null) {
-        _hideDepartures();
+        _hide_departures();
       } else {
-        _showDepartures(station);
+        _show_departures(station);
       }
     });
   }
 
-  void _setupStation(Station station) {
+  void _setup_station(Station station) {
     LIElement li;
     if (_station_li_map.containsKey(station)) {
       li = _station_li_map[station];
@@ -158,11 +158,11 @@ class TimeTableStyler extends Styler {
         ..classes.add('departure_list');
 
       var title = new SpanElement()
-        ..onClick.listen((_) => _toggleDeparture(station))
+        ..onClick.listen((_) => _toggle_departure(station))
         ..classes.add('title')
         ..text = station.name;
       var update = new SpanElement()
-        ..onClick.listen((_) => _showDepartures(station))
+        ..onClick.listen((_) => _show_departures(station))
         ..classes.add('update');
 
       li = new LIElement()
@@ -177,21 +177,21 @@ class TimeTableStyler extends Styler {
     _station_list.append(li);
   }
 
-  _toggleDeparture(Station station) {
-    if (maps_styler.active == station) {
-      maps_styler.active = null;
+  _toggle_departure(Station station) {
+    if (mapsStyler.active == station) {
+      mapsStyler.active = null;
     } else {
-      maps_styler.active = station;
+      mapsStyler.active = station;
     }
 
   }
 
-  void _hideDepartures() {
+  void _hide_departures() {
     assert(_active_station != null);
     _station_li_map[_active_station].classes.remove('active');
   }
 
-  _showDepartures(Station station) async {
+  _show_departures(Station station) async {
     if (_active_station != null) {
       _station_li_map[_active_station].classes.remove('active');
     }
@@ -205,12 +205,12 @@ class TimeTableStyler extends Styler {
     var departures = await station.departures;
     departure_list.classes.remove('loading');
 
-    departure_list.children.addAll(departures.map(_departureToLi));
+    departure_list.children.addAll(departures.map(_departure_to_li));
 
   }
 
 
-  LIElement _departureToLi(Departure departure) {
+  LIElement _departure_to_li(Departure departure) {
     if (_departure_li_map.containsKey(departure)) {
       return _departure_li_map[departure];
     }
@@ -229,19 +229,19 @@ class TimeTableStyler extends Styler {
       ..append(name)
       ..append(direction)
       ..append(ttd);
-    _autoUpdate(() => ttd.text = formatDuration(departure.ttd));
+    _auto_update(() => ttd.text = formatDuration(departure.ttd));
     departure.onDeparture.listen((_) {
       li.remove();
-      _showUpdate(departure.station);
+      _show_update(departure.station);
     });
     return _departure_li_map[departure] = li;
   }
 
-  void _showUpdate(Station station) {
+  void _show_update(Station station) {
     _station_li_map[station].classes.add('updateable');
   }
 
-  void _autoUpdate(callback()) {
+  void _auto_update(callback()) {
     if (_auto_update_callback != null) {
       var old_callback = _auto_update_callback;
       _auto_update_callback = () {
@@ -343,7 +343,7 @@ class MapsStyler extends Styler {
 
   MapsStyler(Element element) : super(element);
 
-  _setupMap() async {
+  _setup_map() async {
     _body.classes.add('initializing');
     var location, accuracy;
     var hash_pair = _positionFromHash();
@@ -366,11 +366,11 @@ class MapsStyler extends Styler {
       if (hash_pair == null) {
         return;
       }
-      _setupMapAt(hash_pair.first.latlng, hash_pair.second);
+      showMapAt(hash_pair.first.latlng, hash_pair.second);
     });
     _body.classes.add('has_location');
-    _setupMapAt(location, accuracy);
-    _min_accuracy_controller.stream.listen((int accuracy) => _setupMapAt(location, accuracy));
+    showMapAt(location, accuracy);
+    _min_accuracy_controller.stream.listen((int accuracy) => showMapAt(location, accuracy));
   }
 
   Pair<Position, int> _positionFromHash() {
@@ -383,7 +383,7 @@ class MapsStyler extends Styler {
   }
 
 
-  _setupMapAt(Maps.LatLng position, num radius) async {
+  showMapAt(Maps.LatLng position, num radius) async {
     print([position, radius]);
     radius = max(radius, _min_accuracy);
     var station_list = await stations.stations_nearby(new Position.fromLatLong(position), radius);
@@ -442,7 +442,7 @@ class MapsStyler extends Styler {
 
 
   void setup() {
-    _setupMap();
+    _setup_map();
   }
 
 
