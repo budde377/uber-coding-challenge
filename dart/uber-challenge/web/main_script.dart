@@ -418,7 +418,7 @@ class MapsStyler extends Styler {
 
   }
 
-  void _draw_location(Maps.LatLng position, num accuracy) {
+  void _draw_location(Maps.LatLng position, num radius) {
 
     if (_location_circle == null) {
       var circleOptions = new Maps.CircleOptions()
@@ -428,10 +428,12 @@ class MapsStyler extends Styler {
         ..clickable = false
         ..map = _map
         ..center = position
-        ..radius = accuracy;
+        ..radius = radius;
       _location_circle = new Maps.Circle(circleOptions);
     } else {
-      _location_circle.center = position;
+      _location_circle
+        ..radius = radius
+        ..center = position;
     }
 
   }
