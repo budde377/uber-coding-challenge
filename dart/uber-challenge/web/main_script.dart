@@ -214,10 +214,11 @@ class TimeTableStyler extends Styler {
     if (_departure_li_map.containsKey(departure)) {
       return _departure_li_map[departure];
     }
+    var short_name = formatName(departure.name);
     var name = new SpanElement()
       ..classes.add('name')
-      ..text = formatName(departure.name)
-      ..style.backgroundColor = "hsl(${departure.name.hashCode % 250},100%, 60%)";
+      ..text = short_name
+      ..style.backgroundColor = "hsl(${short_name.hashCode % 360},100%, 60%)";
     var direction = new SpanElement()
       ..classes.add('direction')
       ..text = departure.direction;
@@ -267,59 +268,45 @@ String formatDuration(Duration duration) {
   if (duration.inMinutes >= 60) {
     hour_string = "${duration.inHours} hour${duration.inHours != 1 ? "s" : ""} ";
   }
-  minutes = minutes%60;
+  minutes = minutes % 60;
   return "$hour_string$minutes minute${minutes != 1 ? "s" : ""}";
 }
 
 String formatName(String name) {
-  if (new RegExp(r"^(Bus|Bybus) [0-9A]+$").hasMatch(name)) {
-    return name.split(" ")[1];
+  var match;
+  if ((match = new RegExp(r"^[a-zA-Z ]*[Bb]us ([0-9]+[A-Z]?)$").firstMatch(name)) != null) {
+    return match.group(1);
   }
+  if ((match = new RegExp(r"^(Re|IC|ICL|IB|.R) [0-9]+$").firstMatch(name)) != null) {
+    return match.group(1);
+  }
+
   return name;
 }
 
+class Pair<F, S> {
+  final F first;
+  final S second;
+
+  Pair(this.first, this.second);
+}
+
+
 class MapsStyler extends Styler {
 
-  Maps.GMap _map;
+  Maps.GMap _map_instance;
   Maps.Circle _location_circle;
   int _min_accuracy = 700;
   StreamController<int> _min_accuracy_controller = new StreamController.broadcast();
   StreamController<Station> _on_active_change_controller = new StreamController.broadcast();
   StreamController<List<Station>> _station_view_controller = new StreamController.broadcast();
   final Map<Station, Maps.Marker> _station_marker_map = {};
-
   Station _active;
 
-  Station get active => _active;
-
-  set active(Station value) {
-    _active = value;
-    _on_active_change_controller.add(value);
-
-  }
-
-  MapsStyler(Element element) : super(element);
-
-  set min_accuracy(int value) {
-    _min_accuracy_controller.add(_min_accuracy = value);
-  }
-
-  get min_accuracy => _min_accuracy;
-
-  void setupMap() {
-    querySelector('body').classes.add('blur');
-    window.navigator.geolocation.getCurrentPosition(enableHighAccuracy:true).then((Geoposition position) {
-      setupMapAt(new Maps.LatLng(position.coords.latitude, position.coords.longitude), position.coords.accuracy);
-
-    }, onError:(error) {
-      setupMapAt(new Maps.LatLng(56.1897765, 10.2197742), 700);
-    });
-  }
-
-  void setupMapAt(Maps.LatLng position, [num accuracy = 0]) {
-    accuracy = max(accuracy, _min_accuracy);
-    querySelector('body').classes.remove('blur');
-    //Disabling existing transit information
+  Maps.GMap get _map {
+    if (_map_instance != null) {
+      return _map_instance;
+    }
     var mapStyler = new Maps.MapTypeStyler()
       ..visibility = Maps.MapTypeStylerVisibility.OFF;
 
@@ -329,22 +316,90 @@ class MapsStyler extends Styler {
 
     var mapOptions = new Maps.MapOptions()
       ..zoom = 16
-      ..center = position
       ..mapTypeId = Maps.MapTypeId.ROADMAP
       ..styles = [mapStyle];
 
-    _map = new Maps.GMap(element, mapOptions);
-    _draw_stations(position, accuracy);
-    _min_accuracy_controller.stream.listen((int accuracy) => _draw_stations(position, accuracy));
-    onActiveChange.listen(_changeMarker);
+    return _map_instance = new Maps.GMap(element, mapOptions);
   }
 
-  dynamic _draw_stations(Maps.LatLng pos, [int radius = 300]) async {
+  BodyElement get _body => querySelector('body');
+
+
+  Station get active => _active;
+
+  Stream<Station> get onActiveChange => _on_active_change_controller.stream;
+
+  Stream<List<Station>> get onStationViewChange => _station_view_controller.stream;
+
+  set active(Station value) {
+    _active = value;
+    _on_active_change_controller.add(value);
+
+  }
+
+  set min_accuracy(int value) => _min_accuracy_controller.add(_min_accuracy = value);
+
+  get min_accuracy => _min_accuracy;
+
+  MapsStyler(Element element) : super(element);
+
+  _setupMap() async {
+    _body.classes.add('initializing');
+    var location, accuracy;
+    var hash_pair = _positionFromHash();
+    if (hash_pair != null) {
+      location = hash_pair.first.latlng;
+      accuracy = hash_pair.second;
+    } else {
+      try {
+        var position = await window.navigator.geolocation.getCurrentPosition(enableHighAccuracy:true);
+        location = new Maps.LatLng(position.coords.latitude, position.coords.longitude);
+        accuracy = position.coords.accuracy;
+      } catch (e) {
+        location = new Maps.LatLng(56.1897765, 10.2197742);
+        accuracy = 700;
+      }
+
+    }
+    window.onHashChange.listen((_) {
+      var hash_pair = _positionFromHash();
+      if (hash_pair == null) {
+        return;
+      }
+      _setupMapAt(hash_pair.first.latlng, hash_pair.second);
+    });
+    _body.classes.add('has_location');
+    _setupMapAt(location, accuracy);
+    _min_accuracy_controller.stream.listen((int accuracy) => _setupMapAt(location, accuracy));
+  }
+
+  Pair<Position, int> _positionFromHash() {
+    var match = new RegExp(r"^#([0-9]+)/([0-9]+)/([0-9]+)$").firstMatch(window.location.hash);
+    if (match == null) {
+      return null;
+
+    }
+    return new Pair(new Position(int.parse(match.group(1)), int.parse(match.group(2))), int.parse(match.group(3)));
+  }
+
+
+  _setupMapAt(Maps.LatLng position, num radius) async {
+    print([position, radius]);
+    radius = max(radius, _min_accuracy);
+    var station_list = await stations.stations_nearby(new Position.fromLatLong(position), radius);
+    _map.center = position;
+    _draw_stations(station_list, position, radius);
+    onActiveChange.listen(_changeMarker);
+    _body.classes
+      ..remove('has_location')
+      ..remove('initializing');
+  }
+
+  _draw_stations(List<Station> station_list, Maps.LatLng pos, num radius) {
     _draw_location(pos, radius);
-    var position = new Position.fromLatLong(pos);
-    var station_list = await stations.stations_nearby(position, radius);
     _station_view_controller.add(station_list);
     station_list.forEach(_draw_station);
+
   }
 
   void _draw_station(Station station) {
@@ -382,13 +437,10 @@ class MapsStyler extends Styler {
   }
 
 
-  Stream<Station> get onActiveChange => _on_active_change_controller.stream;
-
   void setup() {
-    setupMap();
+    _setupMap();
   }
 
-  Stream<List<Station>> get onStationViewChange => _station_view_controller.stream;
 
   void _changeMarker(Station station) {
     if (station == null) {
