@@ -308,7 +308,7 @@ class MapsStyler extends Styler {
 
   void setupMap() {
     querySelector('body').classes.add('blur');
-    window.navigator.geolocation.getCurrentPosition(enableHighAccuracy:false).then((Geoposition position) {
+    window.navigator.geolocation.getCurrentPosition(enableHighAccuracy:true).then((Geoposition position) {
       setupMapAt(new Maps.LatLng(position.coords.latitude, position.coords.longitude), position.coords.accuracy);
 
     }, onError:(error) {
