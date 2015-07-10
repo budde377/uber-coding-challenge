@@ -30,6 +30,11 @@ class Station:
         self.pos = pos
 
     def departures(self) -> list:
+        """
+        Lists the departures
+        :return: A sorted list of departures
+        :rtype: list[Departure]
+        """
         element = self.query_strategy.departure_time(self.id)
         return \
             list(
@@ -39,6 +44,12 @@ class Station:
                     key=lambda d: d.date))
 
     def __departure_from_xml(self, element: ElementTree.Element):
+        """
+        Creates a Departure instance from a ElementTree.Element
+        :param element:
+        :return:
+        :rtype: Departure
+        """
         if 'cancelled' in element.attrib and element.attrib['cancelled'] != 'false':
             return None
 
@@ -61,23 +72,44 @@ class StationLibrary:
         self.query_strategy = query_strategy
 
     def find_nearby(self, pos: Position, radius: int=100) -> list:
+        """
+        Finds stations near a given position (within a radius).
+        Maximum 50 stations are returned
+        :param pos: The position
+        :param radius: The radius
+        :return: A list of Stations
+        :rtype: list[Station]
+        """
         element = self.query_strategy.find_nearby(pos.lat, pos.long, radius, 50)
         return list(map(self.__station_from_xml, list(element)))
 
-    def station_from_name(self, name: str) -> list:
-        element = self.query_strategy.search_stop(name)
-        return list(map(self.__station_from_xml,
-                        filter(lambda e: e.tag == "StopLocation" and e.attrib['name'] == name, list(element))))
-
     def station_from_id(self, station_id: int) -> Station:
+        """
+        Returns a station from a given id.
+        A station instance is returned regardless of the existence of the id
+        The position and name doesn't need to be correct
+        :param station_id: An integer id
+        :return: A Station
+        :rtype: Station
+        """
         return Station(self, station_id, "", Position(0, 0))
 
-    def __station_from_xml(self, element):
+    def __station_from_xml(self, element: ElementTree.Element):
+        """
+        Creates a station given a ElementTree Element.
+        It is assumed that the element as attributes: id, name, x, and y
+        :param element:
+        :return: A station
+        :rtype: Station
+        """
         return Station(self, int(element.attrib['id']), element.attrib['name'],
                        Position(int(element.attrib['y']), int(element.attrib['x'])))
 
 
 class Departure:
+    """
+    A model of a departure
+    """
     def __init__(self, station: Station, name: str, departure_type: str, date: datetime, direction: str=""):
         self.station = station
         self.name = name

@@ -9,15 +9,6 @@ _nearby = """<?xml version="1.0" encoding="UTF-8"?>
 <StopLocation name="Hovedbanegården, Tivoli" x="12566191" y="55672838" id="10844" distance="34" />
 <StopLocation name="København, Bernstorffsgade (fjernbus)" x="12565112" y="55673899" id="100240000" distance="103" /></LocationList>
 """
-_search = """<?xml version="1.0" encoding="UTF-8"?>
-<LocationList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://xmlopen.rejseplanen.dk/xml/rest/hafasRestLocation.xsd">
-<CoordLocation name="Gyvelhøj 3370 Melby, Halsnæs Kommune" x="11946043" y="55992953" type="ADR" />
-<StopLocation name="Velkær" x="9546732" y="54997056" id="519002300" />
-<StopLocation name="Velkær" x="9546733" y="54997056" id="519002301" />
-<StopLocation name="Helsingør St." x="9582617" y="55624341" id="603330500" />
-<CoordLocation name="Skelbyvej Bavelse Mlgd, 4171 Glumsø, Næstved Kommu" x="11665022" y="55328686" type="ADR" />
-</LocationList>
-"""
 
 _departure = """<?xml version="1.0" encoding="UTF-8"?>
 <DepartureBoard xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -42,28 +33,19 @@ class QueryStrategy:
     def find_nearby(self, x: int, y: int, max_radius: int, max_number: int) -> ElementTree.Element:
         raise NotImplemented
 
-    def search_stop(self, name: str) -> ElementTree.Element:
-        raise NotImplemented
-
     def departure_time(self, stop_id: int, use_bus=True, use_tog=True, use_metro=True) -> ElementTree.Element:
         raise NotImplemented
 
 
 class StubQueryStrategy(QueryStrategy):
-    def __init__(self, nearby: ElementTree.Element=None, search: ElementTree.Element=None,
-                 departure: ElementTree.Element=None):
+    def __init__(self, nearby: ElementTree.Element=None, departure: ElementTree.Element=None):
         self.nearby = nearby if nearby is not None else ElementTree.fromstring(_nearby)
-        self.search = search if search is not None else ElementTree.fromstring(_search)
         self.departure = departure if departure is not None else ElementTree.fromstring(_departure)
         self.called = []
 
     def find_nearby(self, x: int, y: int, max_radius: int, max_number: int) -> ElementTree.Element:
         self.called.append(('find_nearby', [x, y, max_radius, max_number]))
         return self.nearby
-
-    def search_stop(self, name: str) -> ElementTree.Element:
-        self.called.append(('search_stop', [name]))
-        return self.search
 
     def departure_time(self, stop_id: int, use_bus=True, use_tog=True, use_metro=True) -> ElementTree.Element:
         self.called.append(('departure_time', [stop_id, use_bus, use_tog, use_metro]))
@@ -77,9 +59,6 @@ class RejseplanenQueryStrategy(QueryStrategy):
     def find_nearby(self, x: int, y: int, max_radius: int, max_number: int) -> ElementTree.Element:
         return self._read_url(
             "stopsNearby?coordX=%d&coordY=%d&maxRadius=%d&maxNumber=%d" % (x, y, max_radius, max_number))
-
-    def search_stop(self, name: str) -> ElementTree.Element:
-        return self._read_url("location?input=%s" % parse.quote(name))
 
     def departure_time(self, stop_id: int, use_bus=True, use_tog=True, use_metro=True) -> ElementTree.Element:
         return self._read_url(

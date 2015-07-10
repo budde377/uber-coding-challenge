@@ -19,6 +19,11 @@ def setup_handler(strategy: QueryStrategy):
 
 class ModelEncoder(json.JSONEncoder):
     def default(self, o):
+        """
+        Converts instances of the model to JSON
+        :param o: An object
+        :return: Serializable objects
+        """
         if isinstance(o, Station):
             return {'id': o.id, 'name': o.name, 'pos': self.default(o.pos)}
 
@@ -60,6 +65,11 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         super().do_GET()
 
     def guess_type(self, path):
+        """
+        Decides the correct MIME type for dart scripts
+        :param path:
+        :return:
+        """
         if path[-5:] == ".dart":
             return "application/dart"
 
@@ -93,7 +103,3 @@ class CustomRequestHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         self.wfile.write(bytes(formatted_result, 'UTF-8'))
-
-
-class ThreadedCustomRequestHandler(ThreadingMixIn, CustomRequestHandler):
-    pass

@@ -25,23 +25,6 @@ class TestStationLibrary(TestCase):
         self.lib.find_nearby(Position(1, 2))
         self.assertEqual([('find_nearby', [1, 2, 100, 50])], self.query_strategy.called)
 
-    def test_station_from_name_returns_list_sharing_name(self):
-        station = self.lib.station_from_name('Velkær')
-        self.assertEqual([Station(self.lib, 519002300, 'Velkær', Position(54997056, 9546732)),
-                          Station(self.lib, 519002301, 'Velkær', Position(54997056, 9546733))], station)
-
-    def test_station_from_name_skips_coords(self):
-        station = self.lib.station_from_name('Gyvelhøj 3370 Melby, Halsnæs Kommune')
-        self.assertEqual([], station)
-
-    def test_station_from_name_returns_empty_on_no_name_match(self):
-        station = self.lib.station_from_name('Something else')
-        self.assertEqual([], station)
-
-    def test_strategy_station_called_with_right_parameters(self):
-        self.lib.station_from_name("Bob")
-        self.assertEqual([('search_stop', ["Bob"])], self.query_strategy.called)
-
     def test_station_from_id_is_empty(self):
         self.assertEqual(Station(self.lib, 123, '', Position(0, 0)), self.lib.station_from_id(123))
 
@@ -58,8 +41,7 @@ class TestStation(TestCase):
         other = [
 
             Departure(self.station, "ØR 2037", "TOG", datetime(2015, 7, 7, 10, 12)),
-            Departure(self.station, "ØR 1036", "TOG", datetime(2015, 7, 7, 10, 12),
-                      direction='Hässleholm C og Kalmar C'),
+            Departure(self.station, "ØR 1036", "TOG", datetime(2015, 7, 7, 10, 12), direction='Hässleholm C og Kalmar C'),
             Departure(self.station, "Re 2221", "REG", datetime(2015, 7, 8, 10, 20), "Nykøbing F St.")
         ]
         self.assertEqual(other, departures)
