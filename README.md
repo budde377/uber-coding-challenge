@@ -1,13 +1,13 @@
 # Transitastic
 This app solves the problem *departure time* from the uber coding challenge, by gives real-time departure time for danish public transportation. The transit-information is aquired through the public available API of Rejseplanen.dk.
 
-# The problem 
+## The problem 
 
 
-# The solution
+## The solution
 
 
-# Demo
+## Demo
 The application can be accessed at [http://uber.christianbud.de](http://uber.christianbud.de). Locations can be simulated by chaning location hash. E.g.
 
 * Aarhus H: [http://uber.christianbud.de/#56150156/10204060/0](http://uber.christianbud.de/#56150156/10204060/0)
