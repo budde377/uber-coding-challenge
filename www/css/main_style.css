@@ -45,6 +45,10 @@ font {
     width: 100%;
 }
 
+#Timetable ul.stations{
+    width:100%;
+}
+
 #Timetable ul.stations > li {
     position: relative;
     margin: 1px 0;
