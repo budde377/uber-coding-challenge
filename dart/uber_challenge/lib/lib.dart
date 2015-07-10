@@ -9,8 +9,12 @@ part "src/model.dart";
 part "src/stylers.dart";
 
 
-Stations get stations => new Stations();
-
+/**
+ * Creates a string representation of a given duration
+ * The string will be Soon, if the duration is less than a minute
+ * {min} minute(s) if the duration is less than an hour
+ * or {hour} hour(s) {min} minute(s) else
+ */
 String formatDuration(Duration duration) {
   var minutes = duration.inMinutes;
   if (minutes <= 0) {
@@ -24,6 +28,13 @@ String formatDuration(Duration duration) {
   return "$hour_string$minutes minute${minutes != 1 ? "s" : ""}";
 }
 
+
+/**
+ * Creates a short name. E.g.
+ * Bus 123 => 123
+ * Bybus 42 => 42
+ * RE 1234 => RE
+ */
 String formatName(String name) {
   var match;
   if ((match = new RegExp(r"^[a-zA-Z ]*[Bb]us ([0-9]+[A-Z]?)$").firstMatch(name)) != null) {
@@ -36,12 +47,6 @@ String formatName(String name) {
   return name;
 }
 
-class Pair<F, S> {
-  final F first;
-  final S second;
-
-  Pair(this.first, this.second);
-}
 
 
 class CustomIcon extends Maps.Icon {

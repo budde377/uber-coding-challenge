@@ -5,19 +5,32 @@ Future _ajaxCall(String command) async {
   return JSON.decode(result);
 }
 
+/**
+ * A class that models a position with latitude, longitude, and accuracy
+ * It supports some conversion to and from Google Maps LatLng class
+ */
 class Position {
-  final int lat, long;
+  final int lat, long, accuracy;
 
-  Position(this.lat, this.long);
+  Position(this.lat, this.long, [this.accuracy = 0]);
 
-  Position.fromLatLong(Maps.LatLng pos) : this((pos.lat * 1000000).toInt(), (pos.lng * 1000000).toInt());
+  Position.fromLatLong(Maps.LatLng pos, [num accuracy = 0]) : this.fromNum(pos.lat, pos.lng, accuracy);
 
-  String toString() => "Postion[$lat:$long]";
+  Position.fromNum(num lat, num long, [num accuracy = 0.0]) : this((lat * 1000000).toInt(), (long * 1000000).toInt(), accuracy.toInt());
+
+  Position changeAccuracy(int accuracy) => new Position(lat, long, accuracy);
+
+  String toString() => "Postion[$lat:$long:$accuracy]";
 
   Maps.LatLng get latlng => new Maps.LatLng(lat / 1000000, long / 1000000);
 
 }
 
+/**
+ * Represents a departure.
+ * The instances are created via. a factory which caches instances. This also clears the departure cache in
+ * the Station instance.
+ */
 class Departure {
 
   static final Map<int, Departure>_cache = {};
@@ -50,6 +63,9 @@ class Departure {
 
 }
 
+/**
+ * A representation of a station
+ */
 class Station {
 
   static final Map<int, Station> _cache = {};
@@ -76,22 +92,11 @@ class Station {
   }
 
 }
-
-class Stations {
-
-  static Stations _cache;
-
-  Stations._internal();
-
-  factory Stations() => _cache == null ? _cache = new Stations._internal() : _cache;
-
-  final String url = "/api/1.0/";
-
-  Future<List<Station>> stations_nearby(Position position, [int radius = 1000]) async {
-    var result = await _ajaxCall("Stations/findNearby?lat=${position.lat}&long=${position.long}&radius=${radius}");
-    return result.map((Map station) => new Station.fromMap(station));
-  }
-
-
+/**
+ * Finds the stations nearby
+ */
+Future<List<Station>> stationsNearby(Position position, [int radius = 1000]) async {
+  var result = await _ajaxCall("Stations/findNearby?lat=${position.lat}&long=${position.long}&radius=${radius}");
+  return result.map((Map station) => new Station.fromMap(station));
 }
 

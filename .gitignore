@@ -1,7 +1,8 @@
 .idea
 
-dart/uber-challenge/web/packages
-dart/uber-challenge/.pub
-dart/uber-challenge/build
-dart/uber-challenge/web/main_script.dart.js*
+dart/uber_challenge/web/packages
+dart/uber_challenge/packages
+dart/uber_challenge/.pub
+dart/uber_challenge/build
+dart/uber_challenge/web/main_script.dart.js*
 run.sh

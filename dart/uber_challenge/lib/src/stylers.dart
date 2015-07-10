@@ -1,15 +1,27 @@
 part of uber_challenge;
 
-
+/**
+ * The Styler class "styles" an element by building sub-elements, attaching listeners, etc.
+ */
 abstract class Styler {
 
   final Element element;
 
   Styler(this.element);
 
+  /**
+   * Setup the element style
+   */
   setup();
 }
 
+
+/**
+ * The timetable is the element containing departure times for the stations currently beeing
+ * displayed on the map (accessible through provided the MapsStyler instance)
+ *
+ * The element should contain a UL-element with the *stations* class for listing the stations.
+ */
 class TimeTableStyler extends Styler {
 
   final MapsStyler mapsStyler;
@@ -22,11 +34,15 @@ class TimeTableStyler extends Styler {
 
   TimeTableStyler(Element element, this.mapsStyler) : super(element), _station_list = element.querySelector('ul.stations');
 
-
   setup() {
     mapsStyler.onStationViewChange.listen(_setup_stations);
   }
 
+  /**
+   * Sets up the station-list, by adding LI-elements modeling the stations.
+   * Listens for the change of the active station on the MapsStyler and "expands" the appropriate
+   * LI-element
+   */
   void _setup_stations(List<Station> station_list) {
     _station_list.children.clear();
     station_list.forEach(_setup_station);
@@ -39,6 +55,9 @@ class TimeTableStyler extends Styler {
     });
   }
 
+  /**
+   * Sets up a the station LI-element with appropriate listeners and UL-element of departures.
+   */
   void _setup_station(Station station) {
     LIElement li;
     if (_station_li_map.containsKey(station)) {
@@ -68,6 +87,9 @@ class TimeTableStyler extends Styler {
     _station_list.append(li);
   }
 
+  /**
+   * Toggles the active station on the MapStyler
+   */
   _toggle_departure(Station station) {
     if (mapsStyler.active == station) {
       mapsStyler.active = null;
@@ -77,11 +99,17 @@ class TimeTableStyler extends Styler {
 
   }
 
+  /**
+   * Hide the departures of the internal _active_station
+   */
   void _hide_departures() {
-    assert(_active_station != null);
     _station_li_map[_active_station].classes.remove('active');
   }
 
+  /**
+   * Show the departures of a given station
+   * It does not change the active station on the MapsStyler, but updates the internal active station: _active_station
+   */
   _show_departures(Station station) async {
     if (_active_station != null) {
       _station_li_map[_active_station].classes.remove('active');
@@ -100,7 +128,9 @@ class TimeTableStyler extends Styler {
 
   }
 
-
+  /**
+   * Creates a LI from a given departure.
+   */
   LIElement _departure_to_li(Departure departure) {
     if (_departure_li_map.containsKey(departure)) {
       return _departure_li_map[departure];
@@ -128,10 +158,16 @@ class TimeTableStyler extends Styler {
     return _departure_li_map[departure] = li;
   }
 
+  /**
+   * Enables updating of the station.
+   */
   void _show_update(Station station) {
     _station_li_map[station].classes.add('updateable');
   }
 
+  /**
+   * Registers a function to be called every minute, ideal for updating departure-time.
+   */
   void _auto_update(callback()) {
     if (_auto_update_callback != null) {
       var old_callback = _auto_update_callback;
@@ -150,12 +186,49 @@ class TimeTableStyler extends Styler {
   }
 }
 
+/**
+ * Adds classes to given element from a MapStyler
+ */
+class MapsClassStyler extends Styler {
+
+  final MapsStyler mapStyler;
+
+  MapsClassStyler(Element element, this.mapStyler) : super(element);
+
+  /**
+   * Initially adds initialzing class
+   * When has-location adds has_location class
+   * When the map-view is changed the classes are removed
+   */
+  setup() {
+
+    element.classes.add('initializing');
+    mapStyler.onHasLocation.listen((_) {
+      element.classes.add('has_location');
+    });
+
+    mapStyler.onStationViewChange.listen((_) {
+      element.classes
+        ..remove('initializing')
+        ..remove('has_location');
+    });
+
+  }
+
+
+}
+
+/**
+ * The MapsStyler 'styles' an element by creating a (google) map in it.
+ * The map will contain markers modeling the stations and an active station.
+ */
 class MapsStyler extends Styler {
 
   Maps.GMap _map_instance;
   Maps.Circle _location_circle;
   int _min_accuracy = 700;
   StreamController<int> _min_accuracy_controller = new StreamController.broadcast();
+  StreamController<Position> _on_has_location_controller = new StreamController.broadcast();
   StreamController<Station> _on_active_change_controller = new StreamController.broadcast();
   StreamController<List<Station>> _station_view_controller = new StreamController.broadcast();
   final Map<Station, Maps.Marker> _station_marker_map = {};
@@ -180,19 +253,15 @@ class MapsStyler extends Styler {
     return _map_instance = new Maps.GMap(element, mapOptions);
   }
 
-  BodyElement get _body => querySelector('body');
-
+  Stream<Station> get onActiveChange => _on_active_change_controller.stream;
+  Stream<List<Station>> get onStationViewChange => _station_view_controller.stream;
+  Stream<Position> get onHasLocation => _on_has_location_controller.stream;
 
   Station get active => _active;
-
-  Stream<Station> get onActiveChange => _on_active_change_controller.stream;
-
-  Stream<List<Station>> get onStationViewChange => _station_view_controller.stream;
 
   set active(Station value) {
     _active = value;
     _on_active_change_controller.add(value);
-
   }
 
   set min_accuracy(int value) => _min_accuracy_controller.add(_min_accuracy = value);
@@ -201,66 +270,71 @@ class MapsStyler extends Styler {
 
   MapsStyler(Element element) : super(element);
 
-  _setup_map() async {
-    _body.classes.add('initializing');
-    var location, accuracy;
-    var hash_pair = _positionFromHash();
-    if (hash_pair != null) {
-      location = hash_pair.first.latlng;
-      accuracy = hash_pair.second;
-    } else {
+  /**
+   * Sets up the map
+   * If no location is provided through the location hash the location is found with geolocation
+   * If that fails the current location is set to my home
+   */
+  setup() async {
+    var location;
+    if ((location = _hash_position) == null) {
       try {
         var position = await window.navigator.geolocation.getCurrentPosition(enableHighAccuracy:true);
-        location = new Maps.LatLng(position.coords.latitude, position.coords.longitude);
-        accuracy = position.coords.accuracy;
+        location = new Position.fromNum(position.coords.latitude, position.coords.longitude, position.coords.accuracy);
       } catch (e) {
-        location = new Maps.LatLng(56.1897765, 10.2197742);
-        accuracy = 700;
+        location = new Position(56189776, 10219774, 700);
       }
 
     }
-    window.onHashChange.listen((_) {
-      var hash_pair = _positionFromHash();
-      if (hash_pair == null) {
-        return;
-      }
-      showMapAt(hash_pair.first.latlng, hash_pair.second);
-    });
-    _body.classes.add('has_location');
-    showMapAt(location, accuracy);
-    _min_accuracy_controller.stream.listen((int accuracy) => showMapAt(location, accuracy));
+    window.onHashChange.listen((_) => showMapAt(_hash_position));
+    _on_has_location_controller.add(location);
+    showMapAt(location);
+    _min_accuracy_controller.stream.listen((int accuracy) => showMapAt(location.changeAccuracy(accuracy)));
   }
 
-  Pair<Position, int> _positionFromHash() {
+
+  /**
+   * Gets the position from the location hash
+   * If the hash isn't on right format, null is returned
+   */
+  Position get _hash_position {
     var match = new RegExp(r"^#([0-9]+)/([0-9]+)/([0-9]+)$").firstMatch(window.location.hash);
     if (match == null) {
       return null;
 
     }
-    return new Pair(new Position(int.parse(match.group(1)), int.parse(match.group(2))), int.parse(match.group(3)));
+    return new Position(int.parse(match.group(1)), int.parse(match.group(2)), int.parse(match.group(3)));
   }
 
+  /**
+   * Centers the map and shows nearby stations to the provided position.
+   */
+  showMapAt(Position position) async {
+    if (position == null) {
+      return;
+    }
+    var radius = max(position.accuracy, _min_accuracy);
+    var station_list = await stationsNearby(position, radius);
+    _map.center = position.latlng;
+    _draw_location(position);
+    _draw_stations(station_list);
+    onActiveChange.listen(_setup_marker);
 
-  showMapAt(Maps.LatLng position, num radius) async {
-    print([position, radius]);
-    radius = max(radius, _min_accuracy);
-    var station_list = await stations.stations_nearby(new Position.fromLatLong(position), radius);
-    _map.center = position;
-    _draw_stations(station_list, position, radius);
-    onActiveChange.listen(_changeMarker);
-    _body.classes
-      ..remove('has_location')
-      ..remove('initializing');
   }
 
-  _draw_stations(List<Station> station_list, Maps.LatLng pos, num radius) {
-    _draw_location(pos, radius);
+  /**
+   * Draw a list of stations on the map, all stations in the map, but not in the list, are removed
+   */
+  _draw_stations(List<Station> station_list) {
     _station_marker_map.forEach((station, Maps.Marker marker) => marker.map = null);
     _station_view_controller.add(station_list);
     station_list.forEach(_draw_station);
 
   }
 
+  /**
+   * Draws a station on the map
+   */
   void _draw_station(Station station) {
     if (_station_marker_map.containsKey(station)) {
       _station_marker_map[station].map = _map;
@@ -278,7 +352,10 @@ class MapsStyler extends Styler {
 
   }
 
-  void _draw_location(Maps.LatLng position, num radius) {
+  /**
+   * Draws the current location
+   */
+  void _draw_location(Position position) {
 
     if (_location_circle == null) {
       var circleOptions = new Maps.CircleOptions()
@@ -286,25 +363,20 @@ class MapsStyler extends Styler {
         ..fillOpacity = 0.1
         ..fillColor = "#76cbe3"
         ..clickable = false
-        ..map = _map
-        ..center = position
-        ..radius = radius;
+        ..map = _map;
       _location_circle = new Maps.Circle(circleOptions);
-    } else {
-      _location_circle
-        ..radius = radius
-        ..center = position;
     }
+    _location_circle
+      ..radius = position.accuracy
+      ..center = position.latlng;
+
 
   }
 
-
-  void setup() {
-    _setup_map();
-  }
-
-
-  void _changeMarker(Station station) {
+  /**
+   * Sets the marker and adds a listener for changes
+   */
+  void _setup_marker(Station station) {
     if (station == null) {
       return;
     }
