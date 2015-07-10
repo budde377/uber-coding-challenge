@@ -8,11 +8,11 @@ This app solves the problem *departure time* from the uber coding challenge, by 
 
 
 # Demo
-The application can be accessed at [http://christianbud.de:8000](http://christianbud.de:8000). Locations can be simulated by chaning location hash. E.g.
+The application can be accessed at [http://uber.christianbud.de](http://uber.christianbud.de). Locations can be simulated by chaning location hash. E.g.
 
-* Aarhus H: [http://christianbud.de:8000/#56150156/10204060/0](http://christianbud.de:8000/#56150156/10204060/0)
-* Copenhagen H: [http://christianbud.de:8000/#55673063/12565796/0](http://christianbud.de:8000/#55673063/12565796/0)
-* Åes (precision 2km): [http://christianbud.de:8000/#55918531/9968956/2000](http://christianbud.de:8000/#55918531/9968956/2000)
+* Aarhus H: [http://uber.christianbud.de/#56150156/10204060/0](http://uber.christianbud.de/#56150156/10204060/0)
+* Copenhagen H: [http://uber.christianbud.de/#55673063/12565796/0](http://uber.christianbud.de/#55673063/12565796/0)
+* Åes (precision 2km): [http://uber.christianbud.de/#55918531/9968956/2000](http://uber.christianbud.de/#55918531/9968956/2000)
 
 
 <!---
