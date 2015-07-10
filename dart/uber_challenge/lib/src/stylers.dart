@@ -313,8 +313,8 @@ class MapsStyler extends Styler {
     if (position == null) {
       return;
     }
-    var radius = max(position.accuracy, _min_accuracy);
-    var station_list = await stationsNearby(position, radius);
+    position = position.changeAccuracy(max(position.accuracy, _min_accuracy));
+    var station_list = await stationsNearby(position, position.accuracy);
     _map.center = position.latlng;
     _draw_location(position);
     _draw_stations(station_list);
