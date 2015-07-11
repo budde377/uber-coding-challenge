@@ -1,18 +1,32 @@
 # Transitastic
-This app solves the problem *departure time* from the uber coding challenge, by gives real-time departure time for danish public transportation. The transit-information is aquired through the public available API of Rejseplanen.dk.
+This app solves the problem *departure time* from the uber coding challenge, gives real-time departure time for danish public transportation. The transit-information is aquired through the public available API of Rejseplanen.dk.
 
-## The problem 
+## Problem 
+[Rejseplanen.dk](http://rejseplanen.dk) is the only provider of danish transit information. Their service is mainly focused on travel-planning, i.e. how to get from A to B, and provides no native service for quick access of departure times for a given station/busstop. Such an service is a usefull for the user who is familiar with the bus-lines, but just want to know when the next bus is departing. It should be accessible from mobile devices and require minimal user interaction.
 
+## Solution
+This service solves this problem by implementing a *full-stack* web-service written in Python and Dart. The app finds nearby stations/bus-stops, visualized with a list and a map. Departure information can then be accessed by selecting relevant stations. **Why these technologies**
 
-## The solution
+### Frontend
+Implemented in HTML, CSS3, and Dart, this service provides a simple design which displays real-time departure information. The design is responsive, which enables access from mobile devices, and features icons from [iconmonstr](http://iconmonstr.com/).
 
+The dart script defines a model 
+
+Most styling in CSS
+Focus on minimal client-server interaction
+
+### Backend
+
+REST
+
+## Future work
 
 ## Demo
-The application can be accessed at [http://uber.christianbud.de](http://uber.christianbud.de). Locations can be simulated by chaning location hash. E.g.
+The application can be accessed at [uber.christianbud.de](http://uber.christianbud.de). Locations can be simulated by chaning location hash. E.g.
 
-* Aarhus H: [http://uber.christianbud.de/#56150156/10204060/0](http://uber.christianbud.de/#56150156/10204060/0)
-* Copenhagen H: [http://uber.christianbud.de/#55673063/12565796/0](http://uber.christianbud.de/#55673063/12565796/0)
-* Åes (precision 2km): [http://uber.christianbud.de/#55918531/9968956/2000](http://uber.christianbud.de/#55918531/9968956/2000)
+* Aarhus H: [uber.christianbud.de/#56150156/10204060/0](http://uber.christianbud.de/#56150156/10204060/0)
+* Copenhagen H: [uber.christianbud.de/#55673063/12565796/0](http://uber.christianbud.de/#55673063/12565796/0)
+* Åes (precision 2km): [uber.christianbud.de/#55918531/9968956/2000](http://uber.christianbud.de/#55918531/9968956/2000)
 
 
 <!---
