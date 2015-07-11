@@ -10,7 +10,7 @@ This service solves this problem by implementing a *full-stack* web-service writ
 ### Frontend
 Implemented in HTML, CSS3, and Dart, this service provides a simple design which displays real-time departure information. The design is responsive, which enables access from mobile devices, and features icons from [iconmonstr](http://iconmonstr.com/).
 
-The dart script defines a model (of stations and departures) and `Styler`-classes. This enables a clear distinction between the information avaiable and the logic for displaying this. The styler classes are defined as an element and a `setup` method. They then modifies the element by manipulating and creating children. 
+The dart script defines a model (of stations and departures) and `Styler`-classes. This enables a clear distinction between the information avaiable and the logic for displaying this. The styler classes are defined as an `Element` and a `setup` method. The styler should only manipulate the provided element and its children. 
 
 The implementation focuses on minimal client-server interaction, by only fetching departure information lazily and requireing the user to manually fetch new information. 
 
