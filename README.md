@@ -5,14 +5,14 @@ This app solves the problem *departure time* from the uber coding challenge, giv
 [Rejseplanen.dk](http://rejseplanen.dk) is the only provider of danish transit information. Their service is mainly focused on travel-planning, i.e. how to get from A to B, and provides no native service for quick access of departure times for a given station/busstop. Such an service is a usefull for the user who is familiar with the bus-lines, but just want to know when the next bus is departing. It should be accessible from mobile devices and require minimal user interaction.
 
 ## Solution
-This service solves this problem by implementing a *full-stack* web-service written in Python and Dart. The app finds nearby stations/bus-stops, visualized with a list and a map. Departure information can then be accessed by selecting relevant stations. **Why these technologies**
+This service solves this problem by implementing a *full-stack* web-service written in Python (v3.4) and Dart (v1.11). The app finds nearby stations/bus-stops, visualized with a list and a map. Departure information can then be accessed by selecting relevant stations. **Why these technologies**
 
 ### Frontend
 Implemented in HTML, CSS3, and Dart, this service provides a simple design which displays real-time departure information. The design is responsive, which enables access from mobile devices, and features icons from [iconmonstr](http://iconmonstr.com/).
 
 The dart script defines a model (of stations and departures) and `Styler`-classes. This enables a clear distinction between the information avaiable and the logic for displaying this. The styler classes are defined as an `Element` and a `setup` method. The styler should only manipulate the provided element and its children. 
 
-The implementation focuses on minimal client-server interaction, by only fetching departure information lazily and requireing the user to manually fetch new information. 
+The implementation focuses on minimal client-server interaction, by only fetching departure information lazily and requireing the user to manually fetch new information, and is highly dependent on streams for communicating and propragating updates between instances.
 
 ### Backend
 
