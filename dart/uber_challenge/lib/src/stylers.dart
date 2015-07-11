@@ -3,9 +3,9 @@ part of uber_challenge;
 /**
  * The Styler class "styles" an element by building sub-elements, attaching listeners, etc.
  */
-abstract class Styler {
+abstract class Styler<E extends Element> {
 
-  final Element element;
+  final E element;
 
   Styler(this.element);
 
@@ -19,20 +19,17 @@ abstract class Styler {
 /**
  * The timetable is the element containing departure times for the stations currently beeing
  * displayed on the map (accessible through provided the MapsStyler instance)
- *
- * The element should contain a UL-element with the *stations* class for listing the stations.
  */
-class TimeTableStyler extends Styler {
+class TimeTableStyler extends Styler<UListElement> {
 
   final MapsStyler mapsStyler;
-  final UListElement _station_list;
   final Map<Station, LIElement> _station_li_map = {};
   final Map<Station, UListElement> _station_departure_map = {};
   final Map<Departure, LIElement>_departure_li_map = {};
   Function _auto_update_callback;
   Station _active_station;
 
-  TimeTableStyler(Element element, this.mapsStyler) : super(element), _station_list = element.querySelector('ul.stations');
+  TimeTableStyler(Element element, this.mapsStyler) : super(element);
 
   setup() {
     mapsStyler.onStationViewChange.listen(_setup_stations);
@@ -44,7 +41,7 @@ class TimeTableStyler extends Styler {
    * LI-element
    */
   void _setup_stations(List<Station> station_list) {
-    _station_list.children.clear();
+    element.children.clear();
     station_list.forEach(_setup_station);
     mapsStyler.onActiveChange.listen((Station station) {
       if (station == null) {
@@ -84,7 +81,7 @@ class TimeTableStyler extends Styler {
       _station_li_map[station] = li;
 
     }
-    _station_list.append(li);
+    element.append(li);
   }
 
   /**
