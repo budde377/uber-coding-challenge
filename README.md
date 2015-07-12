@@ -5,18 +5,20 @@ This app solves the problem *departure time* from the uber coding challenge, giv
 [Rejseplanen.dk](http://rejseplanen.dk) is the only provider of Danish transit information. Their service is mainly focused on travel-planning, i.e. how to get from A to B, and provides no native service for quick access of departure times for a given station/bus-stop. Such an service is a useful for the user who is familiar with the bus-lines, but just want to know when the next bus is departing. It should be accessible from mobile devices and require minimal user interaction.
 
 ## Solution
-This service solves this problem by implementing a *full-stack* web-service written in Python (v3.4) and Dart (v1.11). The app finds nearby stations/bus-stops, visualized with a list and a map. Departure information can then be accessed by selecting relevant stations. **Why these technologies**
+This service solves this problem by implementing a *full-stack* web-service written in Python (v3.4) and Dart (v1.11). Besides a general facination of the two languages, Python has been chosen for its compact notation, yielding minimal boilerplate code, and Dart for its liberal type system and nice language features for asynchronous programming. 
+
+The app finds nearby stations/bus-stops, visualized with a list and a map. Departure information can then be accessed by selecting relevant stations. 
 
 ### Frontend
 Implemented in HTML, CSS3, and Dart, this service provides a simple design which displays real-time departure information. The design is responsive, which enables access from mobile devices, and features icons from [iconmonstr](http://iconmonstr.com/).
 
-The dart script defines a model (of stations and departures) and `Styler`-classes. This enables a clear distinction between the information available and the logic for displaying this. The styler classes are defined as an `Element` and a `setup` method. The styler should only manipulate the provided element and its children. 
+The dart script defines a model (of stations and departures) and `Styler`-classes. This enables a clear distinction between the information available and the logic for displaying this. The styler classes are defined as an `Element` and a `setup` method and should only manipulate the provided element and its children. 
 
 The implementation focuses on minimal client-server interaction, by only fetching departure information lazily and requiring the user to manually fetch new information, and is highly dependent on streams for communicating and propagating updates between instances.
 
 ### Backend
 
-The server uses the `http.server.HTTPServer` by defining a custom `RequestHandler` (extending the `http.server.SimpleRequestHandler`). This handler supports basic serving of files, e.g. HTML-, CSS-, and JS-files, and serving of a RESTful API. 
+The server uses the `http.server.HTTPServer` by defining a custom `RequestHandler` (extending the `http.server.SimpleRequestHandler`). This handler supports basic serving of files, e.g. HTML-, CSS-, and Dart-files, and serving of a RESTful API. 
 
 The API currently supports two functions: `/API/1.0/Stations/findNearby?lat={lattitude}&long={longtitude}&radius={radius}`  and `/API/1.0/Stations/departures/{station-id}/` for fetching a list of nearby stations and departures respectively. The API can be easily extended with other functions making it maintainable for future versions.
 
