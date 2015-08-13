@@ -1,4 +1,4 @@
-# Transitastic
+# Departure Times
 This app solves the problem *departure time* from the uber coding challenge, gives real-time departure time for Danish public transportation. The transit-information is acquired through the public available API of Rejseplanen.dk.
 
 ## Problem 
