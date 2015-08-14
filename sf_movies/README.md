@@ -21,3 +21,7 @@ HTML
 - div, container
     * div, movie (@-title)
         - div, location (@-location)
+
+Requirements
+------------
+* Geopy
